@@ -21,7 +21,7 @@ pyautogui.click(x=172, y=256)
 time.sleep(1)
 
 # Digite o nome ou número da pessoa
-pyautogui.write("Murilo Irmao")
+pyautogui.write("Heloisa Cardoso Fatec")
 time.sleep(1)
 
 # Clique no resultado da pesquisa para abrir a conversa
@@ -30,7 +30,8 @@ time.sleep(1)
 
 # Digite a mensagem que você deseja enviar
 pyautogui.write(
-    "Olá murilo, meu nome é python vim a pedido do victor te dizer que ele me programou para escrever essa msg.")
+    "Olá Helo, meu nome é python vim a pedido do victor te dizer que ele "
+    "me programou para escrever essa msg.")
 
 # Pressione Enter para enviar a mensagem
 pyautogui.press("enter")
