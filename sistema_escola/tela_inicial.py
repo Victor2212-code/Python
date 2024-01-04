@@ -27,7 +27,7 @@ class Diretor:
         try:
             query = "INSERT INTO secretaria(matricula, nome) VALUES(%s, %s)"
             self.conexao.cursor.execute(query,(matricula, nome))
-            self.conexao.conexao.commmit()
+            self.conexao.conexao.commit()
             print("Secretaria registrada com sucesso!.")
         except mysql.connector.Error as err:
             print(f"Erro ao matricular secretária: {err}.")
@@ -67,7 +67,7 @@ class Secretaria:
             
     def registrar_professor(self, nome, matricula, materia_exercida):
         try:
-            query = "INSERT INTO professor(matricula, nome, materia_exercida) VALUES (%s, %s, %s)"
+            query = "INSERT INTO professor(matricula, nome, materia) VALUES (%s, %s, %s)"
             self.conexao.cursor.execute(query, (matricula, nome, materia_exercida))
             self.conexao.conexao.commit()
             print("Professor registrado com sucesso!.")
@@ -128,8 +128,75 @@ class Secretaria:
             self.conexao.conexao.commit()
             print("Usuário registrado com sucesso!")
         except mysql.connector.Error as err:
-            print(f"Erro ao tentar registrar usuário: {err}")               
+            print(f"Erro ao tentar registrar usuário: {err}")
+            
+    def apagar_acesso(self, usuario, matricula):
+        try:
+            query = "DELETE FROM senhas WHERE usuario = %s AND matricula = %s"
+            self.conexao.cursor.execute(query, (usuario, matricula,))
+            self.conexao.conexao.commit()
+            print("Usuário deletado com sucesso!")
+        except mysql.connector.Error as err:
+            print(f"Erro ao tentar deletar usuário: {err}")       
+                 
+    
+    def adicionar_aula_na_semana(self, nome_materia, nome_professor):
+        opcao = input("Escolha qual dia deseja adicionar a aula [1] Segunda-Feira, [2] Terça-Feira, [3]Quarta-Feira, [4]Quinta-Feira, [5] Sexta-Feira, [6] Sábado: ")
+            
+        if opcao == '1':
+            try:   
+                query = "INSERT INTO segunda_feira(professor, materia) VALUES (%s, %s)"
+                self.conexao.cursor.execute(query, (nome_professor, nome_materia,))
+                self.conexao.conexao.commit()
+                print("Aula adiciona à Segunda-Feira")
+            except mysql.connector.Error as err:
+                print(f"Erro ao adicionar aula:{err}")
+        
+        elif opcao == '2':
+            try:
+                query = "INSERT INTO terca_feira(professor, materia) VALUES (%s, %s)"
+                self.conexao.cursor.execute(query, (nome_professor, nome_materia))
+                self.conexao.conexao.commit()
+                print("Aula adicionada à Terça-Feira")
+            except mysql.connector.Error as err:
+                print(f"Erro ao tentar adicionar aula: {err}")
+                
+        elif opcao == '3':
+            try:
+                query = "INSERT INTO quarta_feira(professor, materia) VALUES (%s, %s)"
+                self.conexao.cursor.execute(query, (nome_professor, nome_materia))
+                self.conexao.conexao.commit()
+                print("Aula adicionada à Quarta-Feira.")
+            except mysql.connector.Error as err:
+                print(f"Erro ao tentar adicionar aula: {err}")
+        
+        elif opcao == '4':
+            try:
+                query = "INSERT INTO quinta_feira(professor, materia) VALUES (%s, %s)"
+                self.conexao.cursor.execute(query, (nome_professor, nome_materia))
+                self.conexao.conexao.commit()
+                print("Aula adicionada à Quinta-Feira.")
+            except mysql.connector.Error as err:
+                print(f"Erro ao tentar adionar aula: {err}")
+        
+        elif opcao == '5':
+            try:
+                query = "INSERT INTO sexta_feira(professor, materia) VALUES (%s, %s)"
+                self.conexao.cursor.execute(query, nome_professor, nome_materia)
+                print("Aula adicionada à Sexta-Feira.")        
+            except mysql.connector.Error as err:
+                print(f"Erro ao tentar adicionar aula: {err}")
 
+        elif opcao == '6':
+            try:
+                query = "INSERT INTO sabado(professor, materia) VALUES (%s, %s)"
+                self.conexao.cursor.execute(query, nome_professor, nome_materia)
+                print("Aula aicionada ao Sábado.")
+            except mysql.connector.Error as err:
+                print(f"erro ao tentar adicionar aula: {err}")
+        else:
+            print("Por favor digite um número válido.")        
+    
 class Professor:
     def __init__(self, conexao):
         self.conexao = conexao
@@ -154,6 +221,58 @@ class Professor:
 class Aluno:
     def __init__(self, conexao):
         self.conexao = conexao
+        
+    def login_aluno(self, usuario, senha):
+        query = 'SELECT * FROM senhas WHERE usuario = %s AND senha = %s'
+        self.conexao.cursor.execute(query, (usuario, senha,))
+        
+        resultado = self.conexao.cursor.fetchone()
+        
+        if resultado:
+            matricula = resultado[2]  # Supondo que a matrícula esteja no segundo campo retornado pela consulta
+            print("Login bem-sucedido!")
+            
+            # Agora que temos a matrícula, buscamos as informações do aluno
+            query_info = 'SELECT nome, sala FROM aluno WHERE matricula = %s'
+            self.conexao.cursor.execute(query_info, (matricula,))
+            
+            resultado_info = self.conexao.cursor.fetchone()
+            
+            if resultado_info:
+                nome = resultado_info[0]  # Supondo que o nome seja o primeiro campo retornado pela consulta
+                sala = resultado_info[1]  # Supondo que a sala seja o segundo campo retornado pela consulta
+                
+                print(f"Informações do aluno - Nome: {nome}, Sala: {sala}")
+                
+                return nome, sala  # Retorna o nome e a sala do aluno
+            else:
+                print("Informações do aluno não encontradas.")
+                return None, None  # Ou outra ação, dependendo do seu fluxo de execução
+        else:
+            print("Usuário ou senha incorretos.")
+            return None, None  # Ou outra ação, dependendo do seu fluxo de execução
+        
+        
+        
+    def imprimir_tabela(self, nome_tabela):
+            try:
+                consulta_colunas = f"SHOW COLUMNS FROM {nome_tabela}"
+                self.conexao.cursor.execute(consulta_colunas)
+                
+                colunas = [coluna[0] for coluna in self.conexao.cursor.fetchall()]
+                
+                consulta = f"SELECT * FROM {nome_tabela}"
+                self.conexao.cursor.execute(consulta)
+                dados = self.conexao.cursor.fetchall()
+                
+                df = pd.DataFrame(dados, columns=colunas)
+                print(df.to_string(index=False))
+            except mysql.connector.Error as err:
+                print(f"Erro ao imprimir tabela: {err}")
+            finally:
+                if 'conexao' in locals():
+                    conexao.close()        
+
 
 conexao = ConexaoBanco()
 
@@ -166,7 +285,7 @@ if opcao == 1:
                             "[1]Matricular Aluno,"
                             "[2]Registrar Professor,"
                             "[3] Desmatricular Aluno"
-                            ",[4] Deletar registro do Professor, [5] Registrar Matéria, [6] Registrar sala, [7]Deletar Matéria, [8] Registrar acesso dos funcionários:   "))
+                            ",[4] Deletar registro do Professor, [5] Registrar Matéria, [6] Registrar sala, [7]Deletar Matéria, [8] Registrar acesso dos funcionários, [9] Apagar registro de acesso dos funcionários:   "))
     
     if opcao_operacao == 1:
             print("--Para matricular um aluno basta colocar o nome, matricula, sala")
@@ -215,10 +334,22 @@ if opcao == 1:
         print("[1]Diretor, [2]Secretario(a), [3]Professor, [4]Aluno")
         usuario_funcionario = input("Digite o usuário: ")
         senha_funcionario = input("Senha do usuário: ")
-        nome_usuario = input("Matrícula do usuário: ")
+        matricula_usuario = input("Matrícula do usuário: ")
         codigo_usuario = int(input("Digite o código: "))
-        secretaria.registrar_funcionario(usuario_funcionario, senha_funcionario, nome_usuario, codigo_usuario)
+        secretaria.registrar_funcionario(usuario_funcionario, senha_funcionario, matricula_usuario, codigo_usuario)
          
+         
+    elif opcao_operacao == 9:
+        print("----Para apagar o acesso de um funcionário basta colocar o usuario e a matricula-----")
+        usuario_funcionario = input("Digite o usuário: ")
+        matricula_usuario = input("Digite a matricúla: ")
+        secretaria.apagar_acesso(usuario_funcionario, matricula_usuario)
+        
+    elif opcao_operacao == 10:
+        print("----Para adicionar uma aula ao dia da semana, basta colocar o nome da aula e o nome do professor-----")
+        nome_materia = input("Nome aula: ")
+        nome_professor = input("Nome do Professor: ")
+        secretaria.adicionar_aula_na_semana(nome_materia, nome_professor)
 elif opcao == 2:
     professor = Professor(conexao)
     
@@ -242,5 +373,39 @@ elif opcao == 3:
     
 elif opcao == 4:
     aluno = Aluno(conexao)
-
+    print("Tela de Login")
+    usuario_aluno = input("Digite seu usuário: ")
+    senha_aluno = input("Digite sua senha: ")
+    aluno.login_aluno(usuario_aluno, senha_aluno)
+    print("-"*50)
+    opcao_operacao = input("Qual operação deseja fazer [1] Ver Aulas, [2] Ver a lista de professores ou [3] Ver lista de matérias: ")
+    if opcao_operacao == '1':
+        opcao = input("Qual dia você deseja vizualizar [1] Segunda-Feira, [2] Terça-Feira, [3] Quarta-Feira, [4] Quinta-Feira, [5] Sexta-Feira, [7] Sábado: ")
+        
+        if opcao == '1':
+            print("-------Segunda-Feira-------")
+            aluno.imprimir_tabela('escola.segunda_feira')
+        
+        
+        if opcao == '2':
+            print("-------Terça-Feira--------")
+            aluno.imprimir_tabela('escola.terca_feira')
+        
+        if opcao == '3':
+            print("-------Quarta-Feira--------")
+            aluno.imprimir_tabela('escola.quarta_feira')
+    
+        if opcao == '4':
+            print("-------Quinta-Feira--------")
+            aluno.imprimir_tabela('escola.quinta_feira')
+        
+        if opcao == '5':
+            print("-------Sexta-Feira---------")
+            aluno.imprimir_tabela('escola.sexta_feira')
+    
+        if opcao == '6':
+            print("-------Sábado--------------")
+            aluno.imprimir_tabela('escola.sabado')
+else:
+    print("Digite os usuários que estão no primiero login de 1 a 4.")            
 conexao.encerrar_conexao()
