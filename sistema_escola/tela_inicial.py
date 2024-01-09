@@ -217,16 +217,16 @@ class Aluno:
             print("Login bem-sucedido!")
             
             # Agora que temos a matrícula, buscamos as informações do aluno
-            query_info = 'SELECT nome, sala FROM aluno WHERE matricula = %s'
+            query_info = 'SELECT nome, semestre FROM aluno WHERE matricula = %s'
             self.conexao.cursor.execute(query_info, (matricula,))
             
             resultado_info = self.conexao.cursor.fetchone()
             
             if resultado_info:
                 nome = resultado_info[0]  # Supondo que o nome seja o primeiro campo retornado pela consulta
-                sala = resultado_info[1]  # Supondo que a sala seja o segundo campo retornado pela consulta
+                semestre_aluno= resultado_info[1]  # Supondo que a sala seja o segundo campo retornado pela consulta
                 
-                print(f"Informações do aluno - Nome: {nome}, Sala: {sala}")
+                print(f"Informações do aluno - Nome: {nome}, Semestre: {semestre_aluno}")
                 print('-'*50)
                 opcao_operacao = input("Qual operação deseja fazer [1] Ver Aulas, [2] Ver a lista de professores ou [3] Ver lista de matérias: ")
                 if opcao_operacao == '1':
@@ -234,28 +234,90 @@ class Aluno:
                     
                     if opcao == '1':
                         print("-------Segunda-Feira-------")
-                        aluno.imprimir_tabela('escola.segunda_feira')
+                        aluno.imprimir_tabela(f"escola.{semestre_aluno}_semestre_segunda_feira")
                     
                     
                     if opcao == '2':
                         print("-------Terça-Feira--------")
-                        aluno.imprimir_tabela('escola.terca_feira')
+                        aluno.imprimir_tabela(f'escola.{semestre_aluno}_semestre_terca_feira')
                     
                     if opcao == '3':
                         print("-------Quarta-Feira--------")
-                        aluno.imprimir_tabela('escola.quarta_feira')
+                        aluno.imprimir_tabela(f'escola.{semestre_aluno}_semestre_quarta_feira')
                 
                     if opcao == '4':
                         print("-------Quinta-Feira--------")
-                        aluno.imprimir_tabela('escola.quinta_feira')
+                        aluno.imprimir_tabela(f'escola.{semestre_aluno}_semestre_quinta_feira')
                     
                     if opcao == '5':
                         print("-------Sexta-Feira---------")
-                        aluno.imprimir_tabela('escola.sexta_feira')
+                        aluno.imprimir_tabela(f'escola.{semestre_aluno}_semestre_sexta_feira')
                 
                     if opcao == '6':
                         print("-------Sábado--------------")
-                        aluno.imprimir_tabela('escola.sabado')
+                        aluno.imprimir_tabela(f'escola.{semestre_aluno}_semestre_sabado')
+                        
+                elif opcao_operacao == '2':
+                    opcao = input("Qual o dia que você deseja ver a lista de professores [1] Segunda-Feira, [2] Terça-Feira, [3] Quarta-Feira, [4] Quinta-Feira, [5] Sexta-Feira, [6] Sábado: ")
+                    
+                    if opcao == '1':
+                        nome_tabela = f"escola.{semestre_aluno}_semestre_segunda_feira"
+                        nome_coluna = 'professores'
+                        aluno.imprimir_coluna(nome_tabela, nome_coluna)
+                    elif opcao == '2':
+                        nome_tabela = f"escola.{semestre_aluno}_semestre_terca_feira"
+                        nome_coluna = 'professores'
+                        aluno.imprimir_coluna(nome_tabela, nome_coluna)
+                    elif opcao == '3':
+                        nome_tabela = f"escola.{semestre_aluno}_semestre_quarta_feira"
+                        nome_coluna = 'professores'
+                        aluno.imprimir_coluna(nome_tabela, nome_coluna)
+                    elif opcao == '4':
+                        nome_tabela = f"escola.{semestre_aluno}_semestre_quinta_feira"
+                        nome_coluna = 'professores'
+                        aluno.imprimir_coluna(nome_tabela, nome_coluna)
+                    elif opcao == '5':
+                        nome_tabela = f"escola.{semestre_aluno}_semestre_sexta_feira"
+                        nome_coluna = 'professores'
+                        aluno.imprimir_coluna(nome_tabela, nome_coluna)
+                    elif opcao == '6':
+                        nome_tabela = f"escola.{semestre_aluno}_semestre_sabado"
+                        nome_coluna = 'professores'
+                        aluno.imprimir_coluna(nome_tabela, nome_coluna)
+                        
+                elif opcao_operacao == '3':
+                    opcao = input("Qual o dia que você deseja ver a lista de materias [1] Segunda-Feira, [2] Terça-Feira, [3] Quarta-Feira, [4] Quinta-Feira, [5] Sexta-Feira, [6] Sábado: ")
+                    
+                    if opcao == '1':
+                        nome_tabela = f"escola.{semestre_aluno}_semestre_segunda_feira"
+                        nome_coluna = 'materias'
+                        aluno.imprimir_coluna(nome_tabela, nome_coluna)
+                        
+                    elif opcao == '2':
+                        nome_tabela = f"escola.{semestre_aluno}_semestre_terca_feira"
+                        nome_coluna = 'materias'
+                        aluno.imprimir_coluna(nome_tabela, nome_coluna)
+                            
+                    elif opcao == '3':
+                        nome_tabela = f"escola.{semestre_aluno}_semestre_quarta_feira"
+                        nome_coluna = 'materias'
+                        aluno.imprimir_coluna(nome_tabela, nome_coluna)
+                    
+                    elif opcao == '4':
+                        nome_tabela = f"escola.{semestre_aluno}_semestre_quinta_feira"
+                        nome_coluna = 'materias'
+                        aluno.imprimir_coluna(nome_tabela, nome_coluna)
+                    
+                    elif opcao == '5':
+                        nome_tabela = f"escola.{semestre_aluno}_semestre_sexta_feira"
+                        nome_coluna = 'materias'
+                        aluno.imprimir_coluna(nome_tabela, nome_coluna)
+                        
+                    elif opcao == '6':
+                        nome_tabela = f"escola.{semestre_aluno}_semestre_sexta_feira"
+                        nome_coluna = 'materias'
+                        aluno.imprimir_coluna(nome_tabela, nome_coluna)     
+                          
             else:
                 print("Informações do aluno não encontradas.")
                 return None, None  # Ou outra ação, dependendo do seu fluxo de execução
@@ -284,6 +346,20 @@ class Aluno:
                 if 'conexao' in locals():
                     conexao.close()        
 
+    def imprimir_coluna(self, nome_tabela, nome_coluna):
+        try:
+            query = f"SELECT {nome_coluna} FROM {nome_tabela}"
+            self.conexao.cursor.execute(query)
+            coluna = self.conexao.cursor.fetchall()
+            
+            if coluna:
+                print(f"Lista de {nome_coluna}:")
+                for item in coluna:
+                    print(item[0])
+            else:
+                print("Não há dados disponíveis.")
+        except mysql.connector.Error as err:
+            print(f"Erro ao imprimir coluna: {err}")
 
 conexao = ConexaoBanco()
 
@@ -299,13 +375,13 @@ match opcao:
                                 "[1]Matricular Aluno,"
                                 "[2]Registrar Professor,"
                                 "[3] Desmatricular Aluno"
-                                ",[4] Deletar registro do Professor, [5] Registrar Matéria, [6]Deletar Matéria, [7] Registrar acesso dos funcionários, [8] Apagar registro de acesso dos funcionários, [9] Adicionar aula ao dia da semana:   "))
+                                ",[4] Deletar registro do Professor, [5] Registrar Matéria, [6]Deletar Matéria, [7] Registrar acesso, [8] Apagar registro de acesso , [9] Adicionar aula ao dia da semana:   "))
         
         if opcao_operacao == 1:
-                print("--Para matricular um aluno basta colocar o nome, matricula, semestre")
+                print("--Para matricular um aluno basta colocar o nome, matricula, semestre--")
                 nome_aluno = input("Nome: ")
                 matricula_aluno = input("Matrícula: ")
-                semestre_aluno = int(input("Semestre: "))
+                semestre_aluno = input("Semestre: ")
                 secretaria.matricular_aluno(nome_aluno, matricula_aluno, semestre_aluno)
                 
         elif opcao_operacao == 2:
