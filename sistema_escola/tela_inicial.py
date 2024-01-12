@@ -55,6 +55,101 @@ class Diretor:
 class Secretaria:
     def __init__(self, conexao):
         self.conexao = conexao
+        
+        
+        
+        
+    def login_secretaria(self, usuario, senha):
+        try:
+            query = 'SELECT matricula FROM senhas WHERE usuario = %s AND senha = %s'
+            self.conexao.cursor.execute(query, (usuario, senha))
+            
+            resultado = self.conexao.cursor.fetchone()
+            
+            if resultado:
+                matricula = resultado[0]
+                query_info = 'SELECT matricula, nome FROM secretaria WHERE matricula = %s'
+                self.conexao.cursor.execute(query_info, (matricula, ))
+                
+                info_secretaria = self.conexao.cursor.fetchone()
+                
+                if info_secretaria:
+                    matricula_secretaria = info_secretaria[0]
+                    nome_secretaria = info_secretaria[1]
+                    print("Login bem-sucedido!")
+                    print(f"Informações do(a) secretario(a) - Nome: {nome_secretaria}, Matricula: {matricula_secretaria}")    
+                    
+                    print("--------Bem-vindo Secretário(a)------------")
+                    opcao_operacao = int(input("Qual operação deseja fazer "
+                                            "[1]Matricular Aluno,"
+                                            "[2]Registrar Professor,"
+                                            "[3] Desmatricular Aluno"
+                                            ",[4] Deletar registro do Professor, [5] Registrar Matéria, [6]Deletar Matéria, [7] Registrar acesso, [8] Apagar registro de acesso , [9] Adicionar aula ao dia da semana:   "))
+                    
+                    if opcao_operacao == 1:
+                            print("--Para matricular um aluno basta colocar o nome, matricula, semestre--")
+                            nome_aluno = input("Nome: ")
+                            matricula_aluno = input("Matrícula: ")
+                            semestre_aluno = input("Semestre: ")
+                            secretaria.matricular_aluno(nome_aluno, matricula_aluno, semestre_aluno)
+                            
+                    elif opcao_operacao == 2:
+                        print("---Para registrar um Professor basta colocar nome, matricula, código da materia exercida---")
+                        nome_professor = input("Nome: ")
+                        matricula_professor = input("Matricula: ")
+                        materia_exercida = input("Materia Exercida: ")
+                        secretaria.registrar_professor(nome_professor, matricula_professor, materia_exercida)
+                        
+                    elif opcao_operacao == 3:
+                        print("-----Para desmatricular um aluno basta colocar sua matrícula-----")
+                        matricula_aluno = input("Digite a Matrícula: ")
+                        secretaria.deletar_aluno(matricula_aluno)
+                        
+                    elif opcao_operacao == 4:
+                        print("------Para deletar um professor basta colocar a  sua matrícula-----")
+                        matricula_professor = input("Digite a matrícula: ")
+                        secretaria.deletar_professor(matricula_professor)
+                        
+                    elif opcao_operacao == 5:
+                        print("----Para adicionar uma matéria, basta colocar o nome e o código----")
+                        nome_materia = input("Nome da Máteria: ")
+                        codigo_materia = int(input("Código: "))
+                        secretaria.adicionar_materia(nome_materia, codigo_materia)
+                        
+                    
+                        
+                    elif opcao_operacao == 6:
+                        print("----Para deletar uma matéria basta fornecer o código----")
+                        codigo_materia = int(input("Código: "))
+                        secretaria.deletar_materia(codigo_materia)   
+                        
+                        
+                    elif opcao_operacao == 7:
+                        print("------Para registrar um funcionário, basta digitar o usuario, senha, colocar a matrícula da pessoa, também é necessário colocar o tipo de usuário------")
+                        print("[1]Diretor, [2]Secretario(a), [3]Professor, [4]Aluno")
+                        usuario_funcionario = input("Digite o usuário: ")
+                        senha_funcionario = input("Senha do usuário: ")
+                        matricula_usuario = input("Matrícula do usuário: ")
+                        codigo_usuario = int(input("Digite o código: "))
+                        secretaria.registrar_usuario(usuario_funcionario, senha_funcionario, matricula_usuario, codigo_usuario)
+                        
+                        
+                    elif opcao_operacao == 8:
+                        print("----Para apagar o acesso de um funcionário basta colocar o usuario e a matricula-----")
+                        usuario_funcionario = input("Digite o usuário: ")
+                        matricula_usuario = input("Digite a matricúla: ")
+                        secretaria.apagar_acesso(usuario_funcionario, matricula_usuario)
+                        
+                    elif opcao_operacao == 9:
+                        print("----Para adicionar uma aula ao dia da semana, basta colocar o nome da aula e o nome do professor-----")
+                        nome_materia = input("Nome aula: ")
+                        nome_professor = input("Nome do Professor: ")
+                        secretaria.adicionar_aula_na_semana(nome_materia, nome_professor)
+                        
+                    else:
+                        print("Digite um número válido.")
+        except mysql.connector.Error as err: 
+            print(f"Erro ao tentar logar: {err}")       
 
     def matricular_aluno(self, nome, matricula, semestre):
         try:
@@ -147,20 +242,20 @@ class Secretaria:
             
             
             if opcao == '1':
-                query = f"INSERT INTO {tabela_semestre}_segunda_feira(professor, materia) VALUES (%s, %s)"
+                query = f"INSERT INTO {tabela_semestre}_segunda_feira(professores, materias) VALUES (%s, %s)"
             elif opcao == '2':
-                query = f"INSERT INTO {tabela_semestre}_terca_feira(professor, materia) VALUES (%s, %s)"
+                query = f"INSERT INTO {tabela_semestre}_terca_feira(professores, materias) VALUES (%s, %s)"
             elif opcao == '3':
-                query = f"INSERT INTO {tabela_semestre}_quarta_feira(professor, materia) VALUES (%s, %s)"
+                query = f"INSERT INTO {tabela_semestre}_quarta_feira(professores, materias) VALUES (%s, %s)"
                 
             elif opcao == '4':
-                query = f"INSERT INTO {tabela_semestre}_quinta_feira(professor, materia) VALUES (%s, %s)"
+                query = f"INSERT INTO {tabela_semestre}_quinta_feira(professores, materias) VALUES (%s, %s)"
                  
             elif opcao == '5':
-                query = f"INSERT INTO {tabela_semestre}_sexta_feira(professor, materia) VALUES (%s, %s)"       
+                query = f"INSERT INTO {tabela_semestre}_sexta_feira(professores, materias) VALUES (%s, %s)"       
                 
             elif opcao == '6':
-                query = f"INSERT INTO {tabela_semestre}_segunda_feira(professor, materia) VALUES (%s, %s)"
+                query = f"INSERT INTO {tabela_semestre}_sabado(professores, materias) VALUES (%s, %s)"
                     
             self.conexao.cursor.execute(query, (nome_professor, nome_materia,))
             self.conexao.conexao.commit()
@@ -183,7 +278,6 @@ class Professor:
                 if resultado:
                     matricula = resultado[0]
 
-                    print("Login bem-sucedido!")
                     query_info = 'SELECT matricula, nome FROM professor WHERE matricula = %s'
                     self.conexao.cursor.execute(query_info, (matricula, ))
                     
@@ -193,12 +287,56 @@ class Professor:
                     if info_professor:
                         matricula_professor = info_professor[0]
                         nome_professor = info_professor[1]
+                        print("Login bem-sucedido!")
                         print(f"Informações Professor - Nome: {nome_professor}, Matricula: {matricula_professor}")
-                        return nome_professor, matricula_professor
+                        opcao_operacao = int(input("Escolha uma operação para fazer [1] Visualizar aulas: "))
+
+                        if opcao_operacao == 1:
+                            semestre = input("Qual o semestre que você deseja vizualizar as aulas digite apenas por extenso Primeiro semestre, Segundo semestre, Terceiro Semestre: ")
+                            
+                            opcao = input('Qual o dia que você deseja saber [1]Segunda-Feira, [2]Terca-Feira, [3]Quarta-Feira, [4]Quinta-Feira, [5]Sexta-Feira, [6]Sábado: ')
+
+                            semestre_dias = {
+                                'Primeiro semestre': 'primeiro_semestre',
+                                'Segundo semestre': 'segundo_semestre',
+                                'Terceiro semestre': 'terceiro_semestre'
+                            }
+                            
+                            dia_semana = {
+                                '1': 'segunda_feira',
+                                '2': 'terca_feira',
+                                '3': 'quarta_feira',
+                                '4': 'quinta_feira',
+                                '5': 'sexta_feira',
+                                '6': 'sabado'
+                            }
+
+
+                            if semestre in semestre_dias and opcao in dia_semana:
+                                semestre_nome = semestre_dias[semestre]
+                                dia_nome = dia_semana[opcao]
+
+                                # Constrói a consulta SQL substituindo os placeholders pelos valores correspondentes
+                                query = f'SELECT * FROM escola.{semestre_nome}_{dia_nome} WHERE professores = %s'
+
+                                # Executa a consulta
+                                self.conexao.cursor.execute(query, (nome_professor,))
+                                
+                                # Obtém os resultados da consulta
+                                resultados = self.conexao.cursor.fetchall()
+
+                                print("Lista de Aulas: ")
+                                for resultado in resultados:
+                                    aulas_dadas = resultado[1]  # Acessa a primeira coluna da linha atual
+                                    print(aulas_dadas)
+
+                        else:
+                            print("Opção inválida.")
                     else:
-                        return "Matéria não encontrada para este professor"
+                        return "Matrícula não encontrada para este professor"
                 else:
-                    return "Usuário ou senha incorretos."
+                    return "Usuário ou senha incorretos"
+
             except mysql.connector.Error as err:
                 print(f"Erro ao obter informações do professor: {err}") 
             
@@ -226,7 +364,7 @@ class Aluno:
                 nome = resultado_info[0]  # Supondo que o nome seja o primeiro campo retornado pela consulta
                 semestre_aluno= resultado_info[1]  # Supondo que a sala seja o segundo campo retornado pela consulta
                 
-                print(f"Informações do aluno - Nome: {nome}, Semestre: {semestre_aluno}")
+                print(f"Informações do aluno - Nome: {nome}, Matricula: {matricula}, Semestre: {semestre_aluno}")
                 print('-'*50)
                 opcao_operacao = input("Qual operação deseja fazer [1] Ver Aulas, [2] Ver a lista de professores ou [3] Ver lista de matérias: ")
                 if opcao_operacao == '1':
@@ -370,82 +508,16 @@ match opcao:
 
     case 1:
         secretaria = Secretaria(conexao)
-        print("--------Bem-vindo Secretário(a)------------")
-        opcao_operacao = int(input("Qual operação deseja fazer "
-                                "[1]Matricular Aluno,"
-                                "[2]Registrar Professor,"
-                                "[3] Desmatricular Aluno"
-                                ",[4] Deletar registro do Professor, [5] Registrar Matéria, [6]Deletar Matéria, [7] Registrar acesso, [8] Apagar registro de acesso , [9] Adicionar aula ao dia da semana:   "))
-        
-        if opcao_operacao == 1:
-                print("--Para matricular um aluno basta colocar o nome, matricula, semestre--")
-                nome_aluno = input("Nome: ")
-                matricula_aluno = input("Matrícula: ")
-                semestre_aluno = input("Semestre: ")
-                secretaria.matricular_aluno(nome_aluno, matricula_aluno, semestre_aluno)
-                
-        elif opcao_operacao == 2:
-            print("---Para registrar um Professor basta colocar nome, matricula, código da materia exercida---")
-            nome_professor = input("Nome: ")
-            matricula_professor = input("Matricula: ")
-            materia_exercida = input("Materia Exercida: ")
-            secretaria.registrar_professor(nome_professor, matricula_professor, materia_exercida)
-            
-        elif opcao_operacao == 3:
-            print("-----Para desmatricular um aluno basta colocar sua matrícula-----")
-            matricula_aluno = input("Digite a Matrícula: ")
-            secretaria.deletar_aluno(matricula_aluno)
-            
-        elif opcao_operacao == 4:
-            print("------Para deletar um professor basta colocar a  sua matrícula-----")
-            matricula_professor = input("Digite a matrícula: ")
-            secretaria.deletar_professor(matricula_professor)
-            
-        elif opcao_operacao == 5:
-            print("----Para adicionar uma matéria, basta colocar o nome e o código----")
-            nome_materia = input("Nome da Máteria: ")
-            codigo_materia = int(input("Código: "))
-            secretaria.adicionar_materia(nome_materia, codigo_materia)
-            
-        
-            
-        elif opcao_operacao == 6:
-            print("----Para deletar uma matéria basta fornecer o código----")
-            codigo_materia = int(input("Código: "))
-            secretaria.deletar_materia(codigo_materia)   
-            
-            
-        elif opcao_operacao == 7:
-            print("------Para registrar um funcionário, basta digitar o usuario, senha, colocar a matrícula da pessoa, também é necessário colocar o tipo de usuário------")
-            print("[1]Diretor, [2]Secretario(a), [3]Professor, [4]Aluno")
-            usuario_funcionario = input("Digite o usuário: ")
-            senha_funcionario = input("Senha do usuário: ")
-            matricula_usuario = input("Matrícula do usuário: ")
-            codigo_usuario = int(input("Digite o código: "))
-            secretaria.registrar_usuario(usuario_funcionario, senha_funcionario, matricula_usuario, codigo_usuario)
-            
-            
-        elif opcao_operacao == 8:
-            print("----Para apagar o acesso de um funcionário basta colocar o usuario e a matricula-----")
-            usuario_funcionario = input("Digite o usuário: ")
-            matricula_usuario = input("Digite a matricúla: ")
-            secretaria.apagar_acesso(usuario_funcionario, matricula_usuario)
-            
-        elif opcao_operacao == 9:
-            print("----Para adicionar uma aula ao dia da semana, basta colocar o nome da aula e o nome do professor-----")
-            nome_materia = input("Nome aula: ")
-            nome_professor = input("Nome do Professor: ")
-            secretaria.adicionar_aula_na_semana(nome_materia, nome_professor)
-            
-        else:
-            print("Digite um número válido.")
+        print("Tela de Login")
+        usuario_secretario = input("Digite seu usuário: ")
+        senha_secretario = input("Digite sua senha: ")
+        secretaria.login_secretaria(usuario_secretario, senha_secretario)
     case 2:
         professor = Professor(conexao)
         print("Tela de Login")
         usuario_professor = input("Digite seu usuário: ")
         senha_professor = input("Digite sua senha: ")
         professor.login_professor(usuario_professor, senha_professor)
-        opcao_operacao = int(input("Escolha uma operação para fazer [1] Visualizar aulas, [2] Ver matérias que dá aula, [3] visualizar salas que dá aula:  "))
     
     case 3:
         diretor = Diretor(conexao)
