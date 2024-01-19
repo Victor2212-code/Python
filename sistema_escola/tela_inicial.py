@@ -13,15 +13,166 @@ class ConexaoBanco:
 
 
     def encerrar_conexao(self):
+        try:
             if self.conexao.is_connected():
                 self.cursor.close()
                 self.conexao.close()
+        except mysql.connector.Error as err:
+            print(f"Erro ao tentar encerrar a conexão: {err}")        
             
+
+class Administrador:
+    def __init__(self, conexao):
+          self.conexao = conexao
+          
+    def login_administrador(self, usuario, senha):
+        try:
+                query = 'SELECT matricula FROM senhas WHERE usuario = %s AND senha = %s'
+                self.conexao.cursor.execute(query, (usuario, senha))
+                
+                info_administrador = self.conexao.cursor.fetchone()
+                
+                if info_administrador:
+                    codigo_administrador = info_administrador[0]
+                    
+                    query_info = 'SELECT nome, codigo_autorizacao FROM administrador WHERE codigo_autorizacao = %s'
+                    self.conexao.cursor.execute(query_info,(codigo_administrador,))
+                    
+                    resultado_info = self.conexao.cursor.fetchone()
+                    
+                    if resultado_info:
+                        nome_administrador = resultado_info[0]
+                        codigo_autorizacao = resultado_info[1]
+                        print("Login bem-sucedido!")
+                        print("------------Bem-vindo Administrador(a)--------")
+                        print(f"Informações do Administrador - Nome: {nome_administrador}, Código: {codigo_autorizacao}")
+                        
+                        opcao_operacao = input("Qual operação deseja fazer [1]Registrar novo administrador, [2] Registrar diretor [3] registrar acesso de usuários, [4] Apagar acesso: ")
+                        
+                        
+                        if opcao_operacao == '1':
+                            print("------Para registrar um novo administrador-----")
+                            nome_administrador = input("Usuário:  ")
+                            codigo_autorizacao = input("Senha: ")
+                            administrador.registrar_novo_administrador(nome_administrador, codigo_autorizacao)
+                            
+                        elif opcao_operacao == '2':
+                            print("------Para registrar o diretor, basta  colocar matricula, nome--------")
+                            matricula_diretor = input("Matricula: ")
+                            nome_diretor = input("Nome: ")
+                            administrador.registrar_diretor(matricula_diretor, nome_diretor)
+                        
+                        elif opcao_operacao == '3':
+                            print("------Para registrar um funcionário, basta digitar o usuario, senha, colocar a matrícula da pessoa, também é necessário colocar o tipo de usuário------")
+                            print("[1]Diretor, [2]Secretario(a), [3]Professor, [4]Aluno")
+                            usuario_funcionario = input("Digite o usuário: ")
+                            senha_funcionario = input("Senha do usuário: ")
+                            matricula_usuario = input("Matrícula do usuário: ")
+                            codigo_usuario = int(input("Digite o código: "))
+                            administrador.registrar_usuario(usuario_funcionario, senha_funcionario, matricula_usuario, codigo_usuario)
+                                
+                        elif opcao_operacao == '4':
+                                print("----Para apagar o acesso de um funcionário basta colocar o usuario e a matricula-----")
+                                usuario_funcionario = input("Digite o usuário: ")
+                                matricula_usuario = input("Digite a matricúla: ")
+                                administrador.apagar_acesso(usuario_funcionario, matricula_usuario)
+                    
+                        else:
+                            print("Digite uma opção válida.")     
+                    else:
+                        print("Erro ao tentar logar!")  
+                         
+        except mysql.connector.Error as err:
+            print(f"Erro ao tentar apagar acesso do usuário: {err}")
+         
+             
+    def registrar_novo_administrador(self, nome, codigo_autorizacao):
+        try: 
+            query = "INSERT INTO administrador(nome, codigo_autorizacao) VALUES (%s, %s)"
+            self.conexao.cursor.execute(query, (nome, codigo_autorizacao))
+            self.conexao.conexao.commit()
+            print("Administrador registrado com sucesso!")
+        except mysql.connector.Error as err:
+            print(f"Erro ao tentar registrar administrador: {err}")
+            
+            
+            
+    def registrar_diretor(self, matricula, nome):
+        try:
+            query = "INSERT INTO diretor(Matricula, Nome) VALUES (%s, %s)"
+            self.conexao.cursor.execute(query, (matricula, nome,))
+            self.conexao.conexao.commit()
+            print("Diretor registrado com sucesso!")
+        except mysql.connector.Error as err:
+            print(f"Erro ao tentar registrar diretor: {err}")
+       
+        
+    def registrar_usuario(self, usuario, senha, matricula, tipo_usuario):
+        try:
+            query = "INSERT INTO senhas(usuario, senha, matricula, tipo_usuario) VALUES (%s, %s, %s, %s)"
+            self.conexao.cursor.execute(query, (usuario, senha, matricula, tipo_usuario))
+            self.conexao.conexao.commit()
+            print("Usuário registrado com sucesso!")
+        except mysql.connector.Error as err:
+            print(f"Erro ao adicionar usuário: {err}")
+       
+            
+    def apagar_acesso(self, usuario, matricula):
+        try:
+            query = "DELETE FROM senhas WHERE usuario = %s AND matricula = %s"
+            self.conexao.cursor.execute(query, (usuario, matricula))
+            self.conexao.conexao.commit()
+            print("Usuário apagado com sucesso!")
+        except mysql.connector.Error as err:
+            print(f"Erro ao tentar apagar o usuário: {err}")
+
 
 class Diretor:
     def __init__(self, conexao):
         self.conexao = conexao
         
+    def login_diretor(self, usuario, senha):
+            try:
+                query = 'SELECT matricula FROM senhas WHERE usuario = %s AND senha = %s'
+                self.conexao.cursor.execute(query, (usuario, senha))
+                
+                resultado = self.conexao.cursor.fetchone()
+           
+                if resultado:
+                    matricula = resultado[0]
+                    query_info = 'SELECT matricula, nome FROM diretor WHERE matricula = %s'
+                    self.conexao.cursor.execute(query_info, (matricula, ))  
+                    
+                    info_diretor = self.conexao.cursor.fetchone()
+                    
+               
+                    if info_diretor:
+                        matricula_diretor = info_diretor[0]
+                        nome_diretor = info_diretor[1]
+                        print("Login bem-sucedido!")
+                        print(f"Olá senhor(a) {nome_diretor}, matrícula: {matricula_diretor}")
+                        
+                        print("-------------Bem-vindo Diretor(a)--------")
+                        
+                        
+                        opcao_operacao = int(input("[1] Registrar Secretário(a)[2] Ver Lista de Alunos matriculados,[3] Ver Lista de Professores : "))
+                
+                    
+                        if opcao_operacao == 1:
+                            print("---Para fazer o registro do(a) secretário(a), basta colocar o nome e a matricula.")
+                            nome = input("Digite o nome: ")
+                            matricula = input("Digite a Matrícula: ")
+                            diretor.registrar_seretaria(nome, matricula)
+                            
+                        elif opcao_operacao == 2:
+                            diretor.imprimir_tabela('escola.aluno')
+                            
+                        elif opcao_operacao == 3:
+                            diretor.imprimir_tabela('escola.professor')
+                    else:
+                        print("Usuário ou senha incorretos.")
+            except mysql.connector.Error as err:
+                print(f"Não foi possível fazer o login: {err}")                
         
     def registrar_seretaria(self, nome, matricula):
         try:
@@ -56,9 +207,6 @@ class Secretaria:
     def __init__(self, conexao):
         self.conexao = conexao
         
-        
-        
-        
     def login_secretaria(self, usuario, senha):
         try:
             query = 'SELECT matricula FROM senhas WHERE usuario = %s AND senha = %s'
@@ -84,7 +232,7 @@ class Secretaria:
                                             "[1]Matricular Aluno,"
                                             "[2]Registrar Professor,"
                                             "[3] Desmatricular Aluno"
-                                            ",[4] Deletar registro do Professor, [5] Registrar Matéria, [6]Deletar Matéria, [7] Registrar acesso, [8] Apagar registro de acesso , [9] Adicionar aula ao dia da semana:   "))
+                                            ",[4] Deletar registro do Professor, [5] Registrar Matéria, [6]Deletar Matéria, [7] Adicionar aula ao dia da semana:   "))
                     
                     if opcao_operacao == 1:
                             print("--Para matricular um aluno basta colocar o nome, matricula, semestre--")
@@ -115,7 +263,6 @@ class Secretaria:
                         nome_materia = input("Nome da Máteria: ")
                         codigo_materia = int(input("Código: "))
                         secretaria.adicionar_materia(nome_materia, codigo_materia)
-                        
                     
                         
                     elif opcao_operacao == 6:
@@ -125,22 +272,6 @@ class Secretaria:
                         
                         
                     elif opcao_operacao == 7:
-                        print("------Para registrar um funcionário, basta digitar o usuario, senha, colocar a matrícula da pessoa, também é necessário colocar o tipo de usuário------")
-                        print("[1]Diretor, [2]Secretario(a), [3]Professor, [4]Aluno")
-                        usuario_funcionario = input("Digite o usuário: ")
-                        senha_funcionario = input("Senha do usuário: ")
-                        matricula_usuario = input("Matrícula do usuário: ")
-                        codigo_usuario = int(input("Digite o código: "))
-                        secretaria.registrar_usuario(usuario_funcionario, senha_funcionario, matricula_usuario, codigo_usuario)
-                        
-                        
-                    elif opcao_operacao == 8:
-                        print("----Para apagar o acesso de um funcionário basta colocar o usuario e a matricula-----")
-                        usuario_funcionario = input("Digite o usuário: ")
-                        matricula_usuario = input("Digite a matricúla: ")
-                        secretaria.apagar_acesso(usuario_funcionario, matricula_usuario)
-                        
-                    elif opcao_operacao == 9:
                         print("----Para adicionar uma aula ao dia da semana, basta colocar o nome da aula e o nome do professor-----")
                         nome_materia = input("Nome aula: ")
                         nome_professor = input("Nome do Professor: ")
@@ -162,7 +293,7 @@ class Secretaria:
             
     def registrar_professor(self, nome, matricula, materia_exercida):
         try:
-            query = "INSERT INTO professor(matricula, nome, materia) VALUES (%s, %s, %s)"
+            query = "INSERT INTO professor(matricula, nome, materia_exercida) VALUES (%s, %s, %s)"
             self.conexao.cursor.execute(query, (matricula, nome, materia_exercida))
             self.conexao.conexao.commit()
             print("Professor registrado com sucesso!.")
@@ -206,24 +337,7 @@ class Secretaria:
             print("Matéria deletada com sucesso!")
         except mysql.connector.Error as err:
             print(f"Erro ao deletar matéria: {err}")
-            
-    def registrar_usuario(self, usuario, senha, matricula, tipo_usuario):
-        try:
-            query = "INSERT INTO senhas(usuario, senha, matricula, tipo_usuario) VALUES (%s, %s, %s, %s)"
-            self.conexao.cursor.execute(query, (usuario, senha, matricula, tipo_usuario))
-            self.conexao.conexao.commit()
-            print("Usuário registrado com sucesso!")
-        except mysql.connector.Error as err:
-            print(f"Erro ao tentar registrar usuário: {err}")
-            
-    def apagar_acesso(self, usuario, matricula):
-        try:
-            query = "DELETE FROM senhas WHERE usuario = %s AND matricula = %s"
-            self.conexao.cursor.execute(query, (usuario, matricula,))
-            self.conexao.conexao.commit()
-            print("Usuário deletado com sucesso!")
-        except mysql.connector.Error as err:
-            print(f"Erro ao tentar deletar usuário: {err}")       
+               
                  
     
     def adicionar_aula_na_semana(self, nome_materia, nome_professor):
@@ -257,11 +371,12 @@ class Secretaria:
             elif opcao == '6':
                 query = f"INSERT INTO {tabela_semestre}_sabado(professores, materias) VALUES (%s, %s)"
                     
-            self.conexao.cursor.execute(query, (nome_professor, nome_materia,))
+            self.conexao.cursor.execute(query,(nome_professor, nome_materia,))
             self.conexao.conexao.commit()
             print("Aula adicionada com sucesso!")
         except mysql.connector.Error as err:
-            print(f"Erro ao adicionar aula: {err}")      
+            print(f"Erro ao adicionar aula: {err}")   
+        
     
 class Professor:
     def __init__(self, conexao):
@@ -452,7 +567,7 @@ class Aluno:
                         aluno.imprimir_coluna(nome_tabela, nome_coluna)
                         
                     elif opcao == '6':
-                        nome_tabela = f"escola.{semestre_aluno}_semestre_sexta_feira"
+                        nome_tabela = f"escola.{semestre_aluno}_semestre_sabado"
                         nome_coluna = 'materias'
                         aluno.imprimir_coluna(nome_tabela, nome_coluna)     
                           
@@ -501,11 +616,17 @@ class Aluno:
 
 conexao = ConexaoBanco()
 
-opcao = int(input("Qual é seu tipo de usuário [1] Secretário(a), [2] Professor, [3] Diretor, [4] Aluno: "))
+opcao = int(input("Qual é seu tipo de usuário [0]Administrador, [1] Secretário(a), [2] Professor, [3] Diretor, [4] Aluno: "))
 
 
 match opcao:
-
+    
+    case 0:
+        administrador = Administrador(conexao) 
+        print("Tela de login")
+        nome_administrador = input("Usuário: ")
+        codigo_autorizacao = input("Senha: ")
+        administrador.login_administrador(nome_administrador, codigo_autorizacao)
     case 1:
         secretaria = Secretaria(conexao)
         print("Tela de Login")
@@ -521,20 +642,10 @@ match opcao:
     
     case 3:
         diretor = Diretor(conexao)
-        opcao_operacao = int(input("[1] Registrar Secretário(a), [2] Ver Lista de Alunos matriculados, [3] Ver Lista de Professores : "))
-        
-        if opcao_operacao == 1:
-            print("---Para fazer o registro do(a) secretário(a), basta colocar o nome e a matricula.")
-            nome = input("Digite o nome: ")
-            matricula = input("Digite a Matrícula: ")
-            diretor.registrar_seretaria(nome, matricula)
-            
-        elif opcao_operacao == 2:
-            diretor.imprimir_tabela('escola.aluno')
-            
-        elif opcao_operacao == 3:
-            diretor.imprimir_tabela('escola.professor')
-        
+        print("Tela de Login")
+        usuario_diretor = input("Digite seu usuário: ")
+        senha_diretor = input("Digite a senha: ")
+        diretor.login_diretor(usuario_diretor, senha_diretor)
     
     case 4:
         aluno = Aluno(conexao)
