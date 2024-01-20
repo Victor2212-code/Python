@@ -404,8 +404,8 @@ class Professor:
                         nome_professor = info_professor[1]
                         materia_exercida = info_professor[2]
                         print("Login bem-sucedido!")
-                        print(f"Informações Professor - Nome: {nome_professor}, Matricula: {matricula_professor}, Materia: {materia_exercida}")
-                        opcao_operacao = int(input("Escolha uma operação para fazer [1] Visualizar aulas, [2] Lançar as notas dos alunos: "))
+                        print(f"Informações Professor - Nome: {nome_professor}, Matricula: {matricula_professor}")
+                        opcao_operacao = int(input("Escolha uma operação para fazer [1] Visualizar aulas, [2] Lançar as notas dos alunos, [3] Apagar notas: "))
 
                         if opcao_operacao == 1:
                             semestre = input("Qual o semestre que você deseja vizualizar as aulas digite apenas por extenso Primeiro semestre, Segundo semestre, Terceiro Semestre: ")
@@ -453,7 +453,7 @@ class Professor:
                             terceira_nota = int(input("Terceira nota: "))
                             opcao_operacao = input("Deseja adicionar outra nota [1]sim, [2]não: ")
                             if opcao_operacao == '1':
-                                outra_nota =int(input("Quarta nota: "))
+                                quarta_nota =int(input("Quarta nota: "))
                                 
                                 query = "SELECT nome, codigo_materia FROM materias WHERE codigo_materia = %s "
                                 self.conexao.cursor.execute(query, (materia_exercida,))
@@ -462,7 +462,7 @@ class Professor:
                                 
                                 if resultado:
                                     materia_exercida = resultado[0]
-                                    operacao_notas = (primeira_nota + segunda_nota + terceira_nota + outra_nota) / 4
+                                    operacao_notas = (primeira_nota + segunda_nota + terceira_nota + quarta_nota) / 4
                                     formatacao_notas = "{:.2f}".format(operacao_notas)
                                     query_info = "SELECT * FROM aluno WHERE matricula = %s"
                                     
@@ -480,13 +480,13 @@ class Professor:
                                         except mysql.connector.Error as err:
                                             print(f"Erro ao tentar adicionar aula: {err}")
                                 
-                                opcao_operacao = input("Deseja inserir outra nota [1] sim, [2] não:")
+                                opcao = input("Deseja inserir outra nota [1] sim, [2] não:")
                                 
-                                if opcao_operacao == '1':
-                                    outra_nota = int(input("Quinta nota: "))
+                                if opcao == '1':
+                                    quinta_nota = int(input("Quinta nota: "))
                                     
                                     materia_exercida = resultado[0]
-                                    operacao_notas = (operacao_notas + outra_nota / 5)
+                                    operacao_notas = (primeira_nota + segunda_nota + terceira_nota + quarta_nota + quinta_nota) / 5
                                     formatacao_notas = "{:.2f}".format(operacao_notas)
                                     query_info = "SELECT * FROM aluno WHERE matricula = %s"
                                     
@@ -532,9 +532,21 @@ class Professor:
                                         except mysql.connector.Error as err:
                                             print(f"Erro ao tentar adicionar aula: {err}")
                                 
-                        
                             else:
                                 print("Opção inválida.")
+                                
+                        elif opcao_operacao == 3:
+                            print("----Para apagar um nota basta digitar o nome da máteria e a nota do aluno-----")
+                            nome_materia = input("Nome matéria: ")
+                            nota_aluno = input("Nota aluno: ")
+                            try:
+                                query = "DELETE FROM notas_alunos WHERE materia = %s AND notas = %s"
+                                self.conexao.cursor.execute(query, (nome_materia, nota_aluno,))
+                                self.conexao.conexao.commit()
+                                print("Nota deletada com sucesso!.")
+                            except mysql.connector.Error as err:
+                                print(f"Erro ao tentar deletar nota: {err}")
+                            
                     else:
                         return "Matrícula não encontrada para este professor"
                 else:
@@ -569,7 +581,7 @@ class Aluno:
                 
                 print(f"Informações do aluno - Nome: {nome}, Matricula: {matricula}, Semestre: {semestre_aluno}")
                 print('-'*50)
-                opcao_operacao = input("Qual operação deseja fazer [1] Ver Aulas, [2] Ver a lista de professores ou [3] Ver lista de matérias: ")
+                opcao_operacao = input("Qual operação deseja fazer [1] Ver Aulas, [2] Ver a lista de professores,  [3] Ver lista de matérias, [4] Ver notas: ")
                 if opcao_operacao == '1':
                     opcao = input("Qual dia você deseja vizualizar [1] Segunda-Feira, [2] Terça-Feira, [3] Quarta-Feira, [4] Quinta-Feira, [5] Sexta-Feira, [7] Sábado: ")
                     
@@ -657,8 +669,28 @@ class Aluno:
                     elif opcao == '6':
                         nome_tabela = f"escola.{semestre_aluno}_semestre_sabado"
                         nome_coluna = 'materias'
-                        aluno.imprimir_coluna(nome_tabela, nome_coluna)     
-                          
+                        aluno.imprimir_coluna(nome_tabela, nome_coluna)    
+                        
+                elif opcao_operacao == '4':
+                    try:
+                        # Consulta para obter as notas do aluno com base na matrícula
+                        query = "SELECT * FROM notas_alunos WHERE matricula = %s"
+                        self.conexao.cursor.execute(query, (matricula,))
+                        resultado = self.conexao.cursor.fetchall()
+
+                        if resultado:
+                            print(f"--Essa é sua relação de notas {nome}---")
+                            for nota in resultado:
+                                print("Disciplina:", nota[0])  # Substitua pelo nome da coluna correta
+                                print("Nota:", nota[3])  # Substitua pelo nome da coluna correta
+                                print("-----")
+
+                        else:
+                            print("Nenhuma nota encontrada para a matrícula", matricula)
+
+                    except mysql.connector.Error as err:
+                        print(f"Erro ao executar a consulta: {err}")
+                                                          
             else:
                 print("Informações do aluno não encontradas.")
                 return None, None  # Ou outra ação, dependendo do seu fluxo de execução
