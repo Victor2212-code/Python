@@ -393,7 +393,7 @@ class Professor:
                 if resultado:
                     matricula = resultado[0]
 
-                    query_info = 'SELECT matricula, nome FROM professor WHERE matricula = %s'
+                    query_info = 'SELECT * FROM professor WHERE matricula = %s'
                     self.conexao.cursor.execute(query_info, (matricula, ))
                     
                     info_professor = self.conexao.cursor.fetchone()
@@ -402,9 +402,10 @@ class Professor:
                     if info_professor:
                         matricula_professor = info_professor[0]
                         nome_professor = info_professor[1]
+                        materia_exercida = info_professor[2]
                         print("Login bem-sucedido!")
-                        print(f"Informações Professor - Nome: {nome_professor}, Matricula: {matricula_professor}")
-                        opcao_operacao = int(input("Escolha uma operação para fazer [1] Visualizar aulas: "))
+                        print(f"Informações Professor - Nome: {nome_professor}, Matricula: {matricula_professor}, Materia: {materia_exercida}")
+                        opcao_operacao = int(input("Escolha uma operação para fazer [1] Visualizar aulas, [2] Lançar as notas dos alunos: "))
 
                         if opcao_operacao == 1:
                             semestre = input("Qual o semestre que você deseja vizualizar as aulas digite apenas por extenso Primeiro semestre, Segundo semestre, Terceiro Semestre: ")
@@ -444,9 +445,96 @@ class Professor:
                                 for resultado in resultados:
                                     aulas_dadas = resultado[1]  # Acessa a primeira coluna da linha atual
                                     print(aulas_dadas)
-
-                        else:
-                            print("Opção inválida.")
+                                    
+                        elif opcao_operacao == 2:
+                            matricula_aluno = input("Matricula aluno: ")
+                            primeira_nota = int(input("Primeira nota: "))
+                            segunda_nota = int(input("Segunda nota: "))
+                            terceira_nota = int(input("Terceira nota: "))
+                            opcao_operacao = input("Deseja adicionar outra nota [1]sim, [2]não: ")
+                            if opcao_operacao == '1':
+                                outra_nota =int(input("Quarta nota: "))
+                                
+                                query = "SELECT nome, codigo_materia FROM materias WHERE codigo_materia = %s "
+                                self.conexao.cursor.execute(query, (materia_exercida,))
+                                
+                                resultado = self.conexao.cursor.fetchone()
+                                
+                                if resultado:
+                                    materia_exercida = resultado[0]
+                                    operacao_notas = (primeira_nota + segunda_nota + terceira_nota + outra_nota) / 4
+                                    formatacao_notas = "{:.2f}".format(operacao_notas)
+                                    query_info = "SELECT * FROM aluno WHERE matricula = %s"
+                                    
+                                    self.conexao.cursor.execute(query_info, (matricula_aluno,))
+                                    
+                                    resultados = self.conexao.cursor.fetchone()
+                                    
+                                    if resultados:
+                                        try:
+                                            semestre_aluno = resultados[2]
+                                            query = "INSERT INTO notas_alunos(materia, semestre, matricula, notas) VALUES (%s, %s, %s, %s)"
+                                            self.conexao.cursor.execute(query, (materia_exercida, semestre_aluno, matricula_aluno, formatacao_notas))
+                                            self.conexao.conexao.commit()
+                                            print("Nota adicionada com sucesso!")
+                                        except mysql.connector.Error as err:
+                                            print(f"Erro ao tentar adicionar aula: {err}")
+                                
+                                opcao_operacao = input("Deseja inserir outra nota [1] sim, [2] não:")
+                                
+                                if opcao_operacao == '1':
+                                    outra_nota = int(input("Quinta nota: "))
+                                    
+                                    materia_exercida = resultado[0]
+                                    operacao_notas = (operacao_notas + outra_nota / 5)
+                                    formatacao_notas = "{:.2f}".format(operacao_notas)
+                                    query_info = "SELECT * FROM aluno WHERE matricula = %s"
+                                    
+                                    self.conexao.cursor.execute(query_info, (matricula_aluno,))
+                                    
+                                    resultados = self.conexao.cursor.fetchone()
+                                    
+                                    if resultados:
+                                        try:
+                                            semestre_aluno = resultados[2]
+                                            query = "INSERT INTO notas_alunos(materia, semestre, matricula, notas) VALUES (%s, %s, %s, %s)"
+                                            self.conexao.cursor.execute(query, (materia_exercida, semestre_aluno, matricula_aluno, formatacao_notas))
+                                            self.conexao.conexao.commit()
+                                            print("Nota adicionada com sucesso!")
+                                        except mysql.connector.Error as err:
+                                            print(f"Erro ao tentar adicionar aula: {err}")
+                                else:
+                                    print(f"Notas: {operacao_notas}")
+                                    
+                            elif opcao_operacao == '2':
+                                query = "SELECT nome, codigo_materia FROM materias WHERE codigo_materia = %s "
+                                self.conexao.cursor.execute(query, (materia_exercida,))
+                                
+                                resultado = self.conexao.cursor.fetchone()
+                                
+                                if resultado:
+                                    materia_exercida = resultado[0]
+                                    operacao_notas = (primeira_nota + segunda_nota + terceira_nota) / 3
+                                    formatacao_notas = "{:.2f}".format(operacao_notas)
+                                    query_info = "SELECT * FROM aluno WHERE matricula = %s"
+                                    
+                                    self.conexao.cursor.execute(query_info, (matricula_aluno,))
+                                    
+                                    resultados = self.conexao.cursor.fetchone()
+                                    
+                                    if resultados:
+                                        try:
+                                            semestre_aluno = resultados[2]
+                                            query = "INSERT INTO notas_alunos(materia, semestre, matricula, notas) VALUES (%s, %s, %s, %s)"
+                                            self.conexao.cursor.execute(query, (materia_exercida, semestre_aluno, matricula_aluno, formatacao_notas))
+                                            self.conexao.conexao.commit()
+                                            print("Nota adicionada com sucesso!")
+                                        except mysql.connector.Error as err:
+                                            print(f"Erro ao tentar adicionar aula: {err}")
+                                
+                        
+                            else:
+                                print("Opção inválida.")
                     else:
                         return "Matrícula não encontrada para este professor"
                 else:
