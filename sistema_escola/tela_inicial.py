@@ -576,8 +576,8 @@ class Aluno:
             resultado_info = self.conexao.cursor.fetchone()
             
             if resultado_info:
-                nome = resultado_info[0]  # Supondo que o nome seja o primeiro campo retornado pela consulta
-                semestre_aluno= resultado_info[1]  # Supondo que a sala seja o segundo campo retornado pela consulta
+                nome = resultado_info[0]  
+                semestre_aluno= resultado_info[1]  
                 
                 print(f"Informações do aluno - Nome: {nome}, Matricula: {matricula}, Semestre: {semestre_aluno}")
                 print('-'*50)
@@ -681,8 +681,8 @@ class Aluno:
                         if resultado:
                             print(f"--Essa é sua relação de notas {nome}---")
                             for nota in resultado:
-                                print("Disciplina:", nota[0])  # Substitua pelo nome da coluna correta
-                                print("Nota:", nota[3])  # Substitua pelo nome da coluna correta
+                                print("Disciplina:", nota[0])  
+                                print("Nota:", nota[3])  
                                 print("-----")
 
                         else:
@@ -693,10 +693,10 @@ class Aluno:
                                                           
             else:
                 print("Informações do aluno não encontradas.")
-                return None, None  # Ou outra ação, dependendo do seu fluxo de execução
+                return None, None 
         else:
             print("Usuário ou senha incorretos.")
-            return None, None  # Ou outra ação, dependendo do seu fluxo de execução
+            return None, None 
         
         
         
@@ -734,10 +734,13 @@ class Aluno:
         except mysql.connector.Error as err:
             print(f"Erro ao imprimir coluna: {err}")
 
+        
+    
+    
+
 conexao = ConexaoBanco()
 
 opcao = int(input("Qual é seu tipo de usuário [0]Administrador, [1] Secretário(a), [2] Professor, [3] Diretor, [4] Aluno: "))
-
 
 match opcao:
     
