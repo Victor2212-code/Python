@@ -1,0 +1,50 @@
+import os
+
+# Verificar se um arquivo existe
+"""
+print(os.path.exists('texto.py'))
+print(os.path.exists('teste.txt'))
+# Verificar se um diretório existe
+print(os.path.exists('python'))
+print(os.path.exists('pasta_nova'))
+
+
+# Exemplo de caminhos
+print(os.path.exists('Arquivos/teste.txt'))"""
+
+# Criar um arquivo
+"""with open('olamundo.py', 'w') as file:
+    pass  # Cria o arquivo vazio
+"""
+# Criar um diretório
+# os.makedirs('python', exist_ok=True)
+"""
+os.mkdir('python2')"""
+
+#  Cminho absoluto - Path da raiz
+"""os.mknod('/C:/Users/vitor/OneDrive/Area de Trabalho/Python-DankiCode/python2/olamundo.py')"""
+
+# Caminho relativo
+# os.mknod('./python2/compras.txt')
+
+# Forma errada de utilizar um o Caminho relativo
+# os.mknod('./arquivos/python/compras2.txt')
+
+# Criando diretório
+# os.mkdir('C:/Users/vitor/OneDrive/Área de Trabalho/Python-DankiCode/Arquivos/arquivos2')
+
+# Caminho absoluto
+# os.mkdir('C:/Users/vitor/OneDrive/Área de Trabalho/Python-DankiCode/Arquivos/arquivos2/loja')
+
+# Caminho relativo
+# s.mkdir("./Arquivos/arquivos2/loja/loja_virtual")
+
+# Apagando arquivos
+# os.remove('./Arquivos/teste.txt')
+# print(os.path.exists('teste.txt'))
+
+# Apagando diretório
+# os.remove('arquivos2') - Função exclusiva para arquivos
+"""os.rmdir('./Arquivos/arquivos2/loja/loja_virtual')
+os.rmdir('./Arquivos/arquivos2/loja')"""
+os.rmdir("./Arquivos/pasta_nova")
