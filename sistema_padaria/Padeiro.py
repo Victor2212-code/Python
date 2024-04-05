@@ -4,4 +4,5 @@ class Padeiro:
         self.codigo_identificacao = codigo_identificao
     
     def Registrar_Estoque(self, qtd_paes):
+        self.qtd_paes = qtd_paes
         

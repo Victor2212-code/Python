@@ -13,6 +13,7 @@ def verificar_login(usuario, senha):
         return False
 
 def fazer_login():
+    print('usuário será mais dificil de acertar então ele vou colocar aqui "maritor", agora a senha é nossa data especial.')
     usuario = input("Digite seu nome de usuário: ")
     senha = input("Digite sua senha: ")
     return usuario, senha
